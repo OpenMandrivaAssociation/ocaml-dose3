@@ -27,6 +27,18 @@ BuildRequires:	ocaml-calendar-devel
 BuildRequires:	ocaml-camlzip-devel
 BuildRequires:	ocaml-camlbz2-devel
 BuildRequires:	ocaml-ocamlgraph-devel
+BuildRequires:	ocaml-curl
+BuildRequires:	ocaml-ounit
+BuildRequires:	ocaml-expat-devel
+BuildRequires:	ocaml-camlzip-devel
+BuildRequires:	ocaml-camlbz2-devel
+# fails to build: Error: Some record field labels are undefined: priority
+#BuildRequires:	ocaml-sqlite-devel
+#BuildRequires:	ocaml-postgresql-devel
+BuildRequires:	ocaml-benchmark
+BuildRequires:	ocaml-json-static ocaml-json-wheel-devel
+BuildRequires:	ocaml-ocamlnet-devel
+BuildRequires:	ocaml-xml-light-devel
 BuildRequires:	cudf-ocaml-devel
 BuildRequires:	librpm-devel
 BuildRequires:	libpopt-devel
@@ -60,87 +72,42 @@ rm -f configure
 autoreconf -f -Im4
 
 %build
-%configure	--with-rpm
+%configure	--with-rpm \
+		--with-xml \
+		--with-curl \
+		--with-ocamlgraph \
+		--with-zip \
+		--with-oUnit \
+		--with-bz2 \
+		--with-rpm \
+		--with-benchmark
+		#--with-postgresql \
+		#--with-sqlite
+
 %make
 
 %install
-rm -rf %{buildroot}
-install -d %{buildroot}%{ocaml_libdir}
-%makeinstall DESTDIR=%{buildroot}%{ocaml_libdir}
+%makeinstall_std
+cd doc/manpages
+for man in *.?; do
+	install -m644 $man -D %{buildroot}%{_mandir}/man1/$man
+done
 
 %files
-%doc README
+%{_bindir}/ceve
+%{_bindir}/deb-buildcheck
+%{_bindir}/distcheck
+%{_mandir}/man1/ceve.1*
+%{_mandir}/man1/buildcheck.1*
+%{_mandir}/man1/distcheck.1*
 %dir %{ocaml_libdir}/%{oname}
 %{ocaml_libdir}/%{oname}/META
-%{ocaml_libdir}/%{oname}/ascii_io.cmi
-%{ocaml_libdir}/%{oname}/binary_io.cmi
-%{ocaml_libdir}/%{oname}/conduit.cma
-%{ocaml_libdir}/%{oname}/conduit.cmi
-%{ocaml_libdir}/%{oname}/diagnosis.cmi
-%{ocaml_libdir}/%{oname}/dosebase.cma
-%{ocaml_libdir}/%{oname}/dosebase.cmi
-%{ocaml_libdir}/%{oname}/fragments.cmi
-%{ocaml_libdir}/%{oname}/generic_io.cmi
-%{ocaml_libdir}/%{oname}/human_io.cmi
-%{ocaml_libdir}/%{oname}/installability.cmi
-%{ocaml_libdir}/%{oname}/io.cma
-%{ocaml_libdir}/%{oname}/io.cmi
-%{ocaml_libdir}/%{oname}/lexer.cmi
-%{ocaml_libdir}/%{oname}/lifetime.cma
-%{ocaml_libdir}/%{oname}/lifetime.cmi
-%{ocaml_libdir}/%{oname}/napkin.cma
-%{ocaml_libdir}/%{oname}/napkin.cmi
-%{ocaml_libdir}/%{oname}/ocamldeb.cma
-%{ocaml_libdir}/%{oname}/ocamldeb.cmi
-%{ocaml_libdir}/%{oname}/ocamldebwriter.cmi
-%{ocaml_libdir}/%{oname}/ocamlpkgsrc.cma
-%{ocaml_libdir}/%{oname}/ocamlpkgsrc.cmi
-%{ocaml_libdir}/%{oname}/ocamlrpm.cma
-%{ocaml_libdir}/%{oname}/ocamlrpm.cmi
-%{ocaml_libdir}/%{oname}/packetology.cma
-%{ocaml_libdir}/%{oname}/pirate.cmi
-%{ocaml_libdir}/%{oname}/progress.cma
-%{ocaml_libdir}/%{oname}/progress.cmi
-%{ocaml_libdir}/%{oname}/rapids.cma
-%{ocaml_libdir}/%{oname}/rapids.cmi
-%{ocaml_libdir}/%{oname}/satsolver.cma
-%{ocaml_libdir}/%{oname}/solver.cmi
-%{ocaml_libdir}/%{oname}/util.cma
-%{ocaml_libdir}/%{oname}/util.cmi
-%{ocaml_libdir}/%{oname}/waterway.cmi
-%{ocaml_libdir}/stublibs/dllocamlpkgsrc.so
-%{ocaml_libdir}/stublibs/dllocamlrpm.so*
+%{ocaml_libdir}/%{oname}/*.cmi
+%{ocaml_libdir}/%{oname}/*.cma
 
 %files  devel
-%defattr(-,root,root)
-%doc README
-%{ocaml_libdir}/%{oname}/conduit.a
-%{ocaml_libdir}/%{oname}/conduit.cmxa
-%{ocaml_libdir}/%{oname}/dosebase.a
-%{ocaml_libdir}/%{oname}/dosebase.cmxa
-%{ocaml_libdir}/%{oname}/io.a
-%{ocaml_libdir}/%{oname}/io.cmxa
-%{ocaml_libdir}/%{oname}/lifetime.a
-%{ocaml_libdir}/%{oname}/lifetime.cmxa
-%{ocaml_libdir}/%{oname}/napkin.a
-%{ocaml_libdir}/%{oname}/napkin.cmxa
-%{ocaml_libdir}/%{oname}/ocamldeb.a
-%{ocaml_libdir}/%{oname}/ocamldeb.cmxa
-%{ocaml_libdir}/%{oname}/ocamlpkgsrc.a
-%{ocaml_libdir}/%{oname}/ocamlpkgsrc.cmxa
-%{ocaml_libdir}/%{oname}/ocamlrpm.a
-%{ocaml_libdir}/%{oname}/ocamlrpm.cmxa
-%{ocaml_libdir}/%{oname}/packetology.a
-%{ocaml_libdir}/%{oname}/packetology.cmxa
-%{ocaml_libdir}/%{oname}/progress.a
-%{ocaml_libdir}/%{oname}/progress.cmxa
-%{ocaml_libdir}/%{oname}/rapids.a
-%{ocaml_libdir}/%{oname}/rapids.cmxa
-%{ocaml_libdir}/%{oname}/satsolver.a
-%{ocaml_libdir}/%{oname}/satsolver.cmxa
-%{ocaml_libdir}/%{oname}/util.a
-%{ocaml_libdir}/%{oname}/util.cmxa
-#copied with spurious permissions, need a setting to standard permissions
-%defattr(644,root,root)
-%{ocaml_libdir}/%{oname}/libocamlpkgsrc.a
-%{ocaml_libdir}/%{oname}/libocamlrpm.a
+%doc README.architecture TODO
+%{ocaml_libdir}/%{oname}/*.a
+%{ocaml_libdir}/%{oname}/*.cmxa
+%{ocaml_libdir}/%{oname}/*.mli
+%{ocaml_libdir}/%{oname}/*.o
