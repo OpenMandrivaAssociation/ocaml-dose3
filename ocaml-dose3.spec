@@ -13,6 +13,7 @@ Group:		Development/Other
 Source0:	%{oname}-%{version}.tar.xz
 # TODO: room for improval.. :|
 Patch0:		dose3-2.9.2-rpm5.patch
+Patch1:		dose3-2.9.2-backend.ml.patch
 %rename		edos-dose
 %rename		edos-dose2
 
@@ -34,8 +35,7 @@ BuildRequires:	ocaml-ounit
 BuildRequires:	ocaml-expat-devel
 BuildRequires:	ocaml-camlzip-devel
 BuildRequires:	ocaml-camlbz2-devel
-# fails to build: Error: Some record field labels are undefined: priority
-#BuildRequires:	ocaml-sqlite-devel
+BuildRequires:	ocaml-sqlite-devel
 #BuildRequires:	ocaml-postgresql-devel
 BuildRequires:	ocaml-benchmark
 BuildRequires:	ocaml-json-static ocaml-json-wheel-devel
@@ -70,6 +70,7 @@ Contains all libraries neededs to compile application using the dose3 framework
 %prep
 %setup -q -n %{oname}-%{version}
 %patch0 -p1 -b .rpm5~
+%patch1 -p0
 rm -f configure
 autoreconf -f -Im4
 
@@ -82,9 +83,9 @@ autoreconf -f -Im4
 		--with-oUnit \
 		--with-bz2 \
 		--with-rpm \
+		--with-sqlite \
 		--with-benchmark
 		#--with-postgresql \
-		#--with-sqlite
 
 %make
 
