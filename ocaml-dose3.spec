@@ -24,6 +24,7 @@ Requires:	ocaml-camlbz2
 BuildRequires:	camlp4
 BuildRequires:	ocaml-findlib
 BuildRequires:	ocaml-pcre-devel
+BuildRequires:	ocaml-extlib-devel
 BuildRequires:	ocaml-calendar-devel
 BuildRequires:	ocaml-camlzip-devel
 BuildRequires:	ocaml-camlbz2-devel
