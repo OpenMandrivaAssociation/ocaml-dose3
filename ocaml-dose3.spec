@@ -21,6 +21,7 @@ Requires:	ocaml-calendar
 Requires:	ocaml-camlzip
 Requires:	ocaml-camlbz2
 
+BuildRequires:	camlp4
 BuildRequires:	ocaml-findlib
 BuildRequires:	ocaml-pcre-devel
 BuildRequires:	ocaml-calendar-devel
