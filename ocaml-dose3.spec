@@ -6,7 +6,7 @@ Summary:	Framework for managing distribution packages and their dependencies
 Name:		ocaml-%{oname}
 Version:	2.9.2
 %define	svnrev	2457
-Release:	1.%{svnrev}.1
+Release:	2.%{svnrev}.1
 URL:		http://gforge.inria.fr/projects/sodiac/
 License:	GPLv3+
 Group:		Development/Other
@@ -38,12 +38,14 @@ BuildRequires:	ocaml-camlbz2-devel
 BuildRequires:	ocaml-sqlite-devel
 #BuildRequires:	ocaml-postgresql-devel
 BuildRequires:	ocaml-benchmark
+BuildRequires:	ocaml-graphviz
 BuildRequires:	ocaml-json-static ocaml-json-wheel-devel
 BuildRequires:	ocaml-ocamlnet-devel
 BuildRequires:	ocaml-xml-light-devel
 BuildRequires:	cudf-ocaml-devel
 BuildRequires:	librpm-devel
 BuildRequires:	libpopt-devel
+BuildRequires:	bc
 
 %description
 Dose 3 is a framework made of several OCaml libraries for managing
@@ -100,6 +102,7 @@ for man in *.?; do
 done
 
 %files
+%defattr(-,root,root,-)
 %{_bindir}/ceve
 %{_bindir}/deb-buildcheck
 %{_bindir}/distcheck
