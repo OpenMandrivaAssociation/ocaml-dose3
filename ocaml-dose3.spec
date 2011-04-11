@@ -6,7 +6,7 @@ Summary:	Framework for managing distribution packages and their dependencies
 Name:		ocaml-%{oname}
 Version:	2.9.2
 %define	svnrev	2457
-Release:	0.%{svnrev}.2
+Release:	1.%{svnrev}.1
 URL:		http://gforge.inria.fr/projects/sodiac/
 License:	GPLv3+
 Group:		Development/Other
@@ -69,7 +69,10 @@ Contains all libraries neededs to compile application using the dose3 framework
 
 %prep
 %setup -q -n %{oname}-%{version}
+%if %mdkversion > 201010
 %patch0 -p1 -b .rpm5~
+%endif
+
 %patch1 -p0
 rm -f configure
 autoreconf -f -Im4
