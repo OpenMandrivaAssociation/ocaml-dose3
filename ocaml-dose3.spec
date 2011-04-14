@@ -6,7 +6,7 @@ Summary:	Framework for managing distribution packages and their dependencies
 Name:		ocaml-%{oname}
 Version:	2.9.2
 %define	svnrev	2457
-Release:	2.%{svnrev}.1
+Release:	3.%{svnrev}.1
 URL:		http://gforge.inria.fr/projects/sodiac/
 License:	GPLv3+
 Group:		Development/Other
@@ -15,7 +15,7 @@ Source0:	%{oname}-%{version}.tar.xz
 Patch0:		dose3-2.9.2-rpm5.patch
 Patch1:		dose3-2.9.2-backend.ml.patch
 %rename		edos-dose
-%rename		edos-dose2
+%rename		edos-dose3
 
 Requires:	ocaml-pcre
 Requires:	ocaml-calendar
