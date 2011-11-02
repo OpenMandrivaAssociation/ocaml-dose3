@@ -4,13 +4,13 @@
 
 Summary:	Framework for managing distribution packages and their dependencies
 Name:		ocaml-%{oname}
-Version:	2.9.2
-%define	svnrev	2457
-Release:	4.%{svnrev}.1
+Version:	2.9.9
+%define	svnrev	2753
+Release:	0.%{svnrev}.2
 URL:		http://gforge.inria.fr/projects/sodiac/
 License:	GPLv3+
 Group:		Development/Other
-Source0:	%{oname}-%{version}.tar.xz
+Source0:	%{oname}-%{svnrev}.tar.xz
 # TODO: room for improval.. :|
 Patch0:		dose3-2.9.2-rpm5.patch
 Patch1:		dose3-2.9.2-backend.ml.patch
@@ -64,35 +64,35 @@ uninstallability checks).
 %package	devel
 Summary:	Development files for %{name}
 Group:		Development/Other
-Requires:	ocaml-dose2
+Requires:	ocaml-dose3
 
 %description	devel
 Contains all libraries neededs to compile application using the dose3 framework
 
 %prep
-%setup -q -n %{oname}-%{version}
-%if %mdkversion > 201010
-%patch0 -p1 -b .rpm5~
-%endif
+%setup -q -n %{oname}
+#%if %mdkversion > 201010
+#%patch0 -p1 -b .rpm5~
+#%endif
 
-%patch1 -p0
+#%patch1 -p0
 rm -f configure
 autoreconf -f -Im4
 
 %build
-%configure	--with-rpm \
-		--with-xml \
-		--with-curl \
-		--with-ocamlgraph \
-		--with-zip \
-		--with-oUnit \
-		--with-bz2 \
-		--with-rpm \
-		--with-sqlite \
-		--with-benchmark
+%configure	--with-rpm5 \
+	#	--with-xml \
+	#	--with-curl \
+	#	--with-zip \
+	#	--with-oUnit \
+	#	--with-bz2 \
+		#--with-sqlite \
+	#	--with-benchmark \
+		#--with-ocamlgraph \
+		#--with-experimental \
 		#--with-postgresql \
 
-%make
+make
 
 %install
 %makeinstall_std
@@ -103,6 +103,8 @@ done
 
 %files
 %defattr(-,root,root,-)
+%exclude %{ocaml_libdir}/%{oname}/boilerplate*
+%{_bindir}/apt-cudf
 %{_bindir}/ceve
 %{_bindir}/deb-buildcheck
 %{_bindir}/distcheck
@@ -116,7 +118,18 @@ done
 
 %files  devel
 %doc README.architecture TODO
+%dir %{ocaml_libdir}/%{oname}/algo
+%{ocaml_libdir}/%{oname}/algo/*mli
+%dir %{ocaml_libdir}/%{oname}/common
+%{ocaml_libdir}/%{oname}/common/*.mli
+%dir %{ocaml_libdir}/%{oname}/deb/
+%{ocaml_libdir}/%{oname}/deb/*mli
+%{ocaml_libdir}/%{oname}/boilerplate*
+
+%{ocaml_libdir}/%{oname}/*.cmo
 %{ocaml_libdir}/%{oname}/*.a
+%{ocaml_libdir}/%{oname}/*.cmxs
 %{ocaml_libdir}/%{oname}/*.cmxa
-%{ocaml_libdir}/%{oname}/*.mli
+#%{ocaml_libdir}/%{oname}/*.mli
 %{ocaml_libdir}/%{oname}/*.o
+%{_mandir}/man1/apt-cudf.1*
