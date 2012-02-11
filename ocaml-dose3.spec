@@ -6,7 +6,7 @@ Summary:	Framework for managing distribution packages and their dependencies
 Name:		ocaml-%{oname}
 Version:	2.9.9
 %define	svnrev	2753
-Release:	0.%{svnrev}.2
+Release:	0.%{svnrev}.3
 URL:		http://gforge.inria.fr/projects/sodiac/
 License:	GPLv3+
 Group:		Development/Other
