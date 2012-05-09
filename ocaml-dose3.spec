@@ -44,7 +44,7 @@ BuildRequires:	ocaml-ocamlnet-devel
 BuildRequires:	ocaml-xml-light-devel
 BuildRequires:	cudf-ocaml-devel
 BuildRequires:	rpm-devel
-BuildRequires:	libpopt-devel
+BuildRequires:	popt-devel
 BuildRequires:	bc
 
 %description
