@@ -43,7 +43,7 @@ BuildRequires:	ocaml-json-static ocaml-json-wheel-devel
 BuildRequires:	ocaml-ocamlnet-devel
 BuildRequires:	ocaml-xml-light-devel
 BuildRequires:	cudf-ocaml-devel
-BuildRequires:	librpm-devel
+BuildRequires:	rpm-devel
 BuildRequires:	libpopt-devel
 BuildRequires:	bc
 
