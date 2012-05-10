@@ -80,6 +80,7 @@ rm -f configure
 autoreconf -f -Im4
 
 %build
+export LIBS=-lrpmdb
 %configure	--with-rpm5 \
 	#	--with-xml \
 	#	--with-curl \
