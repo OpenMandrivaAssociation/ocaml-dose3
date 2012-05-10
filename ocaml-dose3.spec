@@ -102,10 +102,10 @@ cd doc/manpages
 for man in *.?; do
 	install -m644 $man -D %{buildroot}%{_mandir}/man1/$man
 done
+rm %{buildroot}%{ocaml_libdir}/%{oname}/boilerplate*
 
 %files
 %defattr(-,root,root,-)
-%exclude %{ocaml_libdir}/%{oname}/boilerplate*
 %{_bindir}/apt-cudf
 %{_bindir}/ceve
 %{_bindir}/deb-buildcheck
