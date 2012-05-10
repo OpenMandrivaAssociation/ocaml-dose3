@@ -97,7 +97,7 @@ autoreconf -f -Im4
 make
 
 %install
-%makeinstall_std
+%makeinstall_std LIBDIR=%{buildroot}%{_libdir}/ocaml BINDIR=%{buildroot}%{_bindir}
 cd doc/manpages
 for man in *.?; do
 	install -m644 $man -D %{buildroot}%{_mandir}/man1/$man
