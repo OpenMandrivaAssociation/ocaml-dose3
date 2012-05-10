@@ -126,7 +126,6 @@ done
 %{ocaml_libdir}/%{oname}/common/*.mli
 %dir %{ocaml_libdir}/%{oname}/deb/
 %{ocaml_libdir}/%{oname}/deb/*mli
-%{ocaml_libdir}/%{oname}/boilerplate*
 
 %{ocaml_libdir}/%{oname}/*.cmo
 %{ocaml_libdir}/%{oname}/*.a
