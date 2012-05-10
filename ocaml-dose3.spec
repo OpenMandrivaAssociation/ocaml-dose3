@@ -14,6 +14,7 @@ Source0:	%{oname}-%{svnrev}.tar.xz
 # TODO: room for improval.. :|
 Patch0:		dose3-2.9.2-rpm5.patch
 Patch1:		dose3-2.9.2-backend.ml.patch
+Patch2:		dose3-2.9.9-gold.patch
 %rename		edos-dose
 %rename		edos-dose3
 
@@ -76,11 +77,11 @@ Contains all libraries neededs to compile application using the dose3 framework
 #%endif
 
 #%patch1 -p0
+%patch2 -p0
 rm -f configure
 autoreconf -f -Im4
 
 %build
-export LIBS=-lrpmdb
 %configure	--with-rpm5 \
 	#	--with-xml \
 	#	--with-curl \
