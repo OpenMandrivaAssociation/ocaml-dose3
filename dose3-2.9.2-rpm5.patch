@@ -1,0 +1,206 @@
+--- dose3-2.9.2/configure.ac.rpm5~	2011-04-04 11:23:22.000000000 +0200
++++ dose3-2.9.2/configure.ac	2011-04-10 20:40:15.419743837 +0200
+@@ -90,10 +90,9 @@ AC_ARG_WITH(rpm,
+ AC_SUBST(HAS_RPM)
+ if test "$HAS_RPM" = "yes" ; then
+   AC_MSG_NOTICE([RPM support enabled])
+-  AC_CHECK_HEADERS([rpm/rpmlib.h],,AC_MSG_ERROR([missing rpmlib.h]))
+-  AC_CHECK_HEADERS([rpm/rpmio.h],,AC_MSG_ERROR([missing rpmio.h]))
+   AC_CHECK_HEADERS([rpm/rpmtypes.h],,AC_MSG_ERROR([missing rpmtypes.h]))
+   INCLUDE_RPM="<rpm>: include"
++  CPPFLAGS="$CPPFLAGS -I/usr/include/rpm"
+   CONFIG_RPM="-DHASRPM"
+   LINK_RPM="<*.native>: c_use_rpm"
+ fi
+--- dose3-2.9.2/rpm/librpm_stubs.c.rpm5~	2010-04-07 11:56:34.000000000 +0200
++++ dose3-2.9.2/rpm/librpm_stubs.c	2011-04-10 20:45:07.247095493 +0200
+@@ -17,10 +17,14 @@
+ #include <stdio.h>
+ #include <unistd.h>
+ #include <string.h>
++#include <stdint.h>
+ 
+-#include <rpm/rpmtypes.h>
+-#include <rpm/rpmlib.h>
+-#include <rpm/header.h>
++#include <rpmtypes.h>
++#include <rpmio.h>
++#include <rpmtag.h>
++#include <rpmlog.h>
++#include <pkgio.h>
++#include <rpmevr.h>
+ 
+ #include <caml/mlvalues.h>
+ #include <caml/memory.h>
+@@ -180,7 +184,7 @@ char * tag_to_string (int32_t tag) {
+   return res;
+ }
+ 
+-value assoc ( char* str, int32_t tag, int32_t type, rpm_constdata_t data, int32_t count) {
++value assoc ( char* str, int32_t tag, int32_t type, rpmTagData data, int32_t count) {
+   CAMLparam0 ();
+   CAMLlocal2( a, b );
+ 	char *tmp = NULL;
+@@ -189,24 +193,21 @@ value assoc ( char* str, int32_t tag, in
+ 
+   switch (type) {
+     case RPM_STRING_TYPE:
+-      tmp = strdup((char *) data);
++      tmp = strdup(data.str);
+       break;
+-    case RPM_INT16_TYPE:
+-#if RPM_FORMAT_VERSION >= 5
+     case RPM_UINT16_TYPE:
+-#endif
+       stra = (char **) malloc (count * sizeof (char *));
+       for (i = 0; i < count; i++) {
+-        asprintf (&stra[i], "%u", (((uint16_t *) data) [i]));
++        asprintf (&stra[i], "%u", data.ui16p[i]);
+       }
+       tmp = join_strings (stra, ",", count);
+ 			for(i = 0 ; i<count ; i++)
+ 				free(stra[i]);
+       break;
+-    case RPM_INT32_TYPE:
++    case RPM_UINT32_TYPE:
+       stra = (char **) malloc (count * sizeof (char *));
+       for (i = 0; i < count; i++) {
+-        asprintf (&stra[i], "%d", (((int32_t *) data) [i]));
++        asprintf (&stra[i], "%d", data.ui32p[i]);
+       }
+       tmp = join_strings (stra, ",", count);
+ 			for(i = 0 ; i<count ; i++)
+@@ -216,7 +217,7 @@ value assoc ( char* str, int32_t tag, in
+     case RPM_STRING_ARRAY_TYPE:
+       stra = (char **) malloc (count * sizeof (char *));
+       for (i = 0; i < count; i++) {
+-        stra[i] = strdup(((char **) data) [i]);
++        stra[i] = strdup(data.argv[i]);
+       }
+       tmp = join_strings (stra, ",", count);
+ 			for(i = 0 ; i<count ; i++)
+@@ -244,24 +245,36 @@ value rpm_parse_paragraph (value fd) {
+   CAMLparam1 ( fd );
+   CAMLlocal2 ( hd, tl );
+ 
+-  Header header;
++  Header header = NULL;
+   HeaderIterator iter;
+-  struct rpmtd_s td;
+-
++  HE_t he = (HE_t)memset(alloca(sizeof(*he)), 0, sizeof(*he));
++  const char item[] = "Header";
++  const char * msg = NULL;
++  rpmRC rc;
+   FD_t _fd;
+ 
+   tl = Val_emptylist;
+   _fd = fd_val(fd);
+ 
+-  header = headerRead(_fd, HEADER_MAGIC_YES);
++  rc = rpmpkgRead(item, (FD_t)_fd, &header, &msg);
++  switch (rc) {
++      default:
++	  rpmlog(RPMLOG_ERR, "%s: %s: %s\n", "headerRead", item, msg);
++      case RPMRC_NOTFOUND:
++	  header = NULL;
++      case RPMRC_OK:
++	  break;
++  }
++  msg = (const char*)_free(msg);
++
+   if (header == NULL) 
+     CAMLreturn(Val_none);
+ 
+-  iter = headerInitIterator(header);
+-  while (headerNext(iter, &td)) {
++  iter = headerInit(header);
++  while (headerNext(iter, he, 0)) {
+     // we consider only meaninful tags. We ignore everything else
+     // otherwise parsing and copy strings around takes forever
+-    switch (td.tag) {
++    switch (he->tag) {
+       case RPMTAG_NAME:
+       case RPMTAG_VERSION:
+       case RPMTAG_RELEASE:
+@@ -285,16 +298,15 @@ value rpm_parse_paragraph (value fd) {
+       case RPMTAG_DIRINDEXES:
+       case RPMTAG_DIRNAMES:
+       case RPMTAG_FILEMODES:
+-        hd = assoc(tag_to_string(td.tag),td.tag,td.type,td.data,td.count);
++        hd = assoc(tag_to_string(he->tag),he->tag,he->t,he->p,he->c);
+         tl = append(hd,tl);
+         break;
+       default:
+         break;
+     }
+-    rpmtdFreeData(&td);
+   }
+-  if (iter != NULL) headerFreeIterator(iter);
+-  if (header != NULL) headerFree (header);
++  if (iter != NULL) headerFini(iter);
++  if (header != NULL) header = headerFree (header);
+   CAMLreturn(Val_some(tl));
+ }
+ 
+@@ -304,29 +316,39 @@ value rpm_parse_hdlists (value fd) {
+ 
+   Header header;
+   HeaderIterator iter;
+-  struct rpmtd_s td;
+-
++  HE_t he = (HE_t)memset(alloca(sizeof(*he)), 0, sizeof(*he));
++  const char item[] = "Header";
++  const char * msg = NULL;
++  rpmRC rc;
+   FD_t _fd;
+ 
+   _fd = fd_val(fd);
+   tll = Val_emptylist;
+ 
+-  header = headerRead(_fd, HEADER_MAGIC_YES);
++  rc = rpmpkgRead(item, (FD_t)_fd, &header, &msg);
++  switch (rc) {
++      default:
++	  rpmlog(RPMLOG_ERR, "%s: %s: %s\n", "headerRead", item, msg);
++      case RPMRC_NOTFOUND:
++	  header = NULL;
++      case RPMRC_OK:
++	  break;
++  }
++  msg = (const char*)_free(msg);
+   if (header == NULL) 
+     CAMLreturn(tll);
+ 
+-  while ((iter = headerInitIterator(header)) != NULL) {
++  while ((iter = headerInit(header)) != NULL) {
+     tl = Val_emptylist;
+-    while (headerNext(iter, &td)) {
+-      hd = assoc(tag_to_string(td.tag),td.tag,td.type,td.data,td.count);
++    while (headerNext(iter, he, 0)) {
++      hd = assoc(tag_to_string(he->tag),he->tag,he->t,he->p,he->c);
+       tl = append(hd,tl);
+-      rpmtdFreeData(&td);
+     }
+-    headerFreeIterator(iter);
++    headerFini(iter);
+     tll = append(tl,tll);
+   }
+ 
+-  if (header != NULL) headerFree (header);
++  if (header != NULL) header = headerFree (header);
+   CAMLreturn(tll);
+ }
+ 
+@@ -357,11 +379,9 @@ value rpm_vercmp ( value x, value y ) {
+   CAMLreturn (Val_int(res));
+ }
+ 
+-/*
+ value rpm_EVRcmp ( value x, value y ) {
+   CAMLparam2 ( x , y );
+   CAMLlocal1 ( res );
+   res = rpmEVRcmp ( (char *) x , (char *) y );
+   CAMLreturn (Val_int(res));
+ }
+-*/

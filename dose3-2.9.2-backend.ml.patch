@@ -1,0 +1,10 @@
+--- db/backend.ml	2010-09-06 15:06:44.000000000 +0000
++++ db/backend.ml.patched	2011-04-11 12:32:36.877095708 +0000
+@@ -460,6 +460,7 @@
+     version = pkg.number;
+     source = ("",None);
+     architecture = "";
++    priority = "";
+     essential = false;
+     depends = loadll (List.assoc (`Depends) pkg.cnf_deps);
+     pre_depends = loadll (List.assoc (`Pre_depends) pkg.cnf_deps);

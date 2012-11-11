@@ -1,0 +1,12 @@
+--- myocamlbuild.ml.orig	2012-05-10 11:01:04.278555885 +0100
++++ myocamlbuild.ml	2012-05-10 11:01:37.583557286 +0100
+@@ -34,7 +34,8 @@
+ 
+        flag ["ocaml"; "use_rpm"; "link"] & S[
+          A"-cclib"; A"-lrpm";
+-         A"-cclib"; A"-lrpmio"; 
++         A"-cclib"; A"-lrpmio";
++         A"-cclib"; A"-lrpmdb";
+        ];
+        flag ["ocaml"; "use_rpm5"; "link"; "library"] & S[
+          A"-ccopt"; A"-Lrpm"; A"-cclib"; A"-lrpm5_stubs";
