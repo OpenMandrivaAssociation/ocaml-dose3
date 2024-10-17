@@ -7,7 +7,7 @@ Name:		ocaml-%{oname}
 Version:	2.9.9
 %define	svnrev	2753
 Release:	0.%{svnrev}.3
-URL:		http://gforge.inria.fr/projects/sodiac/
+URL:		https://gforge.inria.fr/projects/sodiac/
 License:	GPLv3+
 Group:		Development/Other
 Source0:	%{oname}-%{svnrev}.tar.xz
